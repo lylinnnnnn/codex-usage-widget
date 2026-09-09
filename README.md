@@ -4,7 +4,7 @@
 
 <h1 align="center">Codex Usage Widget</h1>
 
-<p align="center">A lightweight macOS menu bar app and floating desktop widget for viewing local Codex usage limits.</p>
+<p align="center">A lightweight native macOS menu bar app and floating widget for monitoring Codex usage limits and credits locally.</p>
 
 ## Product preview
 
@@ -41,7 +41,7 @@ Prebuilt, signed release downloads are planned for GitHub Releases. V1 currently
 ## Build from Source
 
 ```bash
-git clone https://github.com/OWNER/codex-usage-widget.git
+git clone https://github.com/lylinnnnn/codex-usage-widget.git
 cd codex-usage-widget
 swift build
 swift test
