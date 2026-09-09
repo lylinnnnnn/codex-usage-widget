@@ -41,7 +41,7 @@ Prebuilt, signed release downloads are planned for GitHub Releases. V1 currently
 ## Build from Source
 
 ```bash
-git clone https://github.com/lylinnnnn/codex-usage-widget.git
+git clone https://github.com/lylinnnnnn/codex-usage-widget.git
 cd codex-usage-widget
 swift build
 swift test
