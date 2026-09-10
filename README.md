@@ -4,24 +4,49 @@
 
 <h1 align="center">Codex Usage Widget</h1>
 
-<p align="center">A lightweight native macOS menu bar app and floating widget for monitoring Codex usage limits and credits locally.</p>
+<p align="center">A native macOS floating capsule widget that keeps your Codex usage limits—and Credits when available—visible at a glance.</p>
 
-## Product preview
+<p align="center">It adapts to the usage windows reported by your local Codex service—either 5-hour and weekly limits, or a monthly limit.</p>
+
+<p align="center">
+  <a href="#installation">Installation</a> ·
+  <a href="#privacy">Privacy</a> ·
+  <a href="#build-from-source">Build from source</a>
+</p>
+
+## Codex usage at a glance
 
 ![Codex Usage Widget preview](Assets/screenshot.svg)
 
-The preview uses fictional mock values and contains no account or usage data. The hourglass app icon and preview artwork were created for this project; asset details are documented in [Assets/README.md](Assets/README.md).
+A compact capsule widget keeps Codex usage visible on your Mac desktop without taking over your workspace. The preview uses fictional mock values and contains no account or usage data. The hourglass app icon and preview artwork were created for this project; asset details are documented in [Assets/README.md](Assets/README.md).
 
-## Features
+## Adapts to the data available
 
-- Shows the remaining 5-hour and weekly Codex usage limits.
-- Shows the available Credits balance when the local Codex service provides it.
-- Provides a compact, draggable, always-on-top desktop panel.
-- Includes a menu bar summary with refresh, show/hide, and quit actions.
-- Refreshes on local Codex events, every 60 seconds, after wake, and on demand.
-- Reconfirms the active account after account changes, wake, app activation, and manual refresh.
-- Keeps the last successful reading after ordinary transient refresh failures.
-- Rejects delayed responses and events from retired local app-server sessions.
+| Available data | Widget display |
+| --- | --- |
+| 5-hour and weekly limits | Two usage capsules |
+| 5-hour and weekly limits, plus Credits | Two usage capsules plus a Credits capsule |
+| Monthly limit | A Monthly capsule, plus Credits when available |
+
+The widget displays only the usage windows and Credits data returned by your local Codex service.
+
+## Native menu bar controls
+
+Check the latest usage summary and update time, refresh on demand, show or hide the desktop widget, and quit directly from the macOS menu bar.
+
+## Highlights
+
+- **Floating capsule widget** — Keep Codex usage visible in a compact, draggable, always-on-top desktop widget.
+- **Adaptive usage windows** — See 5-hour and weekly limits or a monthly limit, depending on what the local Codex service provides.
+- **Dynamic Credits display** — The Credits capsule appears only when a balance is available.
+- **Native macOS experience** — Use the desktop widget together with a lightweight menu bar summary and controls.
+- **Local-first privacy** — No credential scraping, browser-cookie access, telemetry, or account-data uploads.
+- **Reliable refreshes** — Updates on local Codex events, every 60 seconds, after wake, and on demand.
+- **Consistent account state** — Keeps the last successful reading through temporary failures and prevents stale session data from replacing current usage.
+
+## Installation
+
+A downloadable GitHub Release is planned. The current version can be built locally from source.
 
 ## Requirements
 
@@ -34,36 +59,13 @@ The source builds for the architecture of the host Mac. The current V1 packaging
 
 Windows and Linux are not supported because the app uses AppKit and SwiftUI.
 
-## Installation
-
-Prebuilt, signed release downloads are planned for GitHub Releases. V1 currently supports building locally from source.
-
-## Build from Source
-
-```bash
-git clone https://github.com/lylinnnnnn/codex-usage-widget.git
-cd codex-usage-widget
-swift build
-swift test
-./Scripts/build-app.sh
-open build/CodexUsageWidget.app
-```
-
-The app bundle produced by the script is ad-hoc signed. Developer ID signing and notarization are intentionally outside the V1 scope.
-
-## Usage
+## Everyday use
 
 Launch the app while Codex is installed and signed in. Drag the floating widget to reposition it. Use the menu bar icon to refresh, hide or show the widget, or quit.
 
-For local UI development without reading an account, run:
-
-```bash
-swift run CodexUsageWidget --mock-usage
-```
-
-Set `CODEX_USAGE_WIDGET_CODEX_PATH` to an explicit executable path only when the automatic Codex lookup does not find your installation.
-
 ## Credits
+
+Credits are optional. The capsule appears only when the local Codex service provides a balance.
 
 Credits are shown as their raw balance by default. This avoids presenting a currency conversion as an official OpenAI price.
 
@@ -95,6 +97,27 @@ The locally installed Codex service remains responsible for its own authenticate
 - Developer ID signing, notarization, automatic updates, and automated releases are not included yet.
 - Availability and shape of the local app-server response may change between Codex versions.
 - Credits currency estimates depend entirely on the user's local assumption.
+
+## Build from Source
+
+```bash
+git clone https://github.com/lylinnnnnn/codex-usage-widget.git
+cd codex-usage-widget
+swift build
+swift test
+./Scripts/build-app.sh
+open build/CodexUsageWidget.app
+```
+
+The app bundle produced by the script is ad-hoc signed. Developer ID signing and notarization are intentionally outside the V1 scope.
+
+For local UI development without reading an account, run:
+
+```bash
+swift run CodexUsageWidget --mock-usage
+```
+
+Set `CODEX_USAGE_WIDGET_CODEX_PATH` to an explicit executable path only when the automatic Codex lookup does not find your installation.
 
 ## Contributing
 
