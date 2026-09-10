@@ -46,6 +46,16 @@ Check the latest usage summary and update time, refresh on demand, show or hide 
 - **Reliable refreshes** — Updates on local Codex events, every 60 seconds, after wake, and on demand.
 - **Consistent account state** — Keeps the last successful reading through temporary failures and prevents stale session data from replacing current usage.
 
+## On your desktop
+
+Real desktop views of Codex Usage Widget in use.
+
+<p align="center">
+  <img src="Assets/desktop-example-01.jpg" width="32%" alt="Codex Usage Widget floating over an underwater whale wallpaper">
+  <img src="Assets/desktop-example-02.jpg" width="32%" alt="Codex Usage Widget and its menu bar controls on an ocean wallpaper">
+  <img src="Assets/desktop-example-03.jpg" width="32%" alt="Codex Usage Widget showing a monthly limit on an underwater wallpaper">
+</p>
+
 ## Installation
 
 A downloadable GitHub Release is planned. The current version can be built locally from source.
