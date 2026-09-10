@@ -82,25 +82,39 @@ struct AppServerTests {
         defer { fixture.remove() }
         let provider = CodexAppServerProvider(
             executableLocator: { fixture.executableURL },
-            creditConfigurationProvider: FixedCreditConfigurationProvider()
+            creditConfigurationProvider: FixedCreditConfigurationProvider(),
+            requestTimeout: Self.appServerRequestTimeout
         )
+        var stage = "first snapshot"
 
         do {
             let first = try await provider.fetchSnapshot()
+            stage = "second snapshot"
             let second = try await provider.fetchSnapshot()
+            stage = "verifying session reuse"
             #expect(try fixture.launchCount() == 1)
             #expect(first.sessionGeneration == second.sessionGeneration)
             #expect(first.accountFingerprint == second.accountFingerprint)
 
+            stage = "reconfirmed snapshot"
             let reconfirmed = try await provider.reconfirmAccountAndFetchSnapshot()
+            stage = "verifying reconfirmation"
             #expect(try fixture.launchCount() == 2)
             #expect(reconfirmed.sessionGeneration > first.sessionGeneration)
             #expect(reconfirmed.accountFingerprint != first.accountFingerprint)
             await provider.stopEventMonitoring()
         } catch {
             await provider.stopEventMonitoring()
-            throw error
+            throw FakeAppServerDiagnosticError(
+                stage: stage,
+                underlyingError: String(describing: error),
+                transcript: fixture.transcript()
+            )
         }
+    }
+
+    private static var appServerRequestTimeout: TimeInterval {
+        ProcessInfo.processInfo.environment["CI"] == "true" ? 30 : 8
     }
 
     private func rateLimitResult(limitID: String) -> AppServerRateLimitReadResult {
@@ -130,12 +144,14 @@ private final class FakeAppServerFixture: @unchecked Sendable {
     let directoryURL: URL
     let executableURL: URL
     private let launchCountURL: URL
+    private let transcriptURL: URL
 
     init() throws {
         directoryURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("CodexUsageWidgetTests-\(UUID().uuidString)")
         executableURL = directoryURL.appendingPathComponent("fake-codex")
         launchCountURL = directoryURL.appendingPathComponent("launch-count")
+        transcriptURL = directoryURL.appendingPathComponent("transcript.log")
         try FileManager.default.createDirectory(
             at: directoryURL,
             withIntermediateDirectories: true
@@ -145,23 +161,42 @@ private final class FakeAppServerFixture: @unchecked Sendable {
         #!/bin/zsh
         set -u
         state_file="\(launchCountURL.path)"
+        transcript_file="\(transcriptURL.path)"
         launch_count=0
         if [[ -f "$state_file" ]]; then
           launch_count="$(<"$state_file")"
         fi
         launch_count=$((launch_count + 1))
-        print -r -- "$launch_count" > "$state_file"
+        builtin printf '%s\n' "$launch_count" > "$state_file"
+        builtin printf 'launch=%s started pid=%s\n' "$launch_count" "$$" >> "$transcript_file"
 
         while IFS= read -r request; do
-          request_id="$(print -r -- "$request" | /usr/bin/sed -E 's/.*"id"[ ]*:[ ]*([0-9]+).*/\\1/')"
-          if [[ "$request" == *'"method":"initialize"'* ]]; then
-            print -r -- "{\"id\":$request_id,\"result\":{\"serverInfo\":{\"name\":\"test\"}}}"
-          elif [[ "$request" == *'"method":"account/read"'* ]]; then
-            print -r -- "{\"id\":$request_id,\"result\":{\"account\":{\"type\":\"chatgpt\",\"email\":\"account-$launch_count@example.invalid\",\"planType\":\"test\"}}}"
-          elif [[ "$request" == *'"method":"account/rateLimits/read"'* ]]; then
-            print -r -- "{\"id\":$request_id,\"result\":{\"rateLimitsByLimitId\":{\"codex\":{\"limitId\":\"codex\",\"primary\":{\"usedPercent\":34,\"windowDurationMins\":300},\"secondary\":{\"usedPercent\":47,\"windowDurationMins\":10080},\"credits\":{\"balance\":\"500\",\"hasCredits\":true,\"unlimited\":false}}}}}"
+          builtin printf 'launch=%s received=%s\n' "$launch_count" "$request" >> "$transcript_file"
+          if [[ "$request" =~ '"id"[[:space:]]*:[[:space:]]*([0-9]+)' ]]; then
+            request_id="$match[1]"
+          else
+            builtin printf 'launch=%s ignored=request-without-id\n' "$launch_count" >> "$transcript_file"
+            continue
           fi
+
+          method='unknown'
+          if [[ "$request" == *'"method"'*'initialize'* ]]; then
+            method='initialize'
+            builtin printf '{"id":%s,"result":{"serverInfo":{"name":"test"}}}\n' "$request_id"
+          elif [[ "$request" == *'"method"'*'account'*'rateLimits'*'read'* ]]; then
+            method='account/rateLimits/read'
+            builtin printf '{"id":%s,"result":{"rateLimitsByLimitId":{"codex":{"limitId":"codex","primary":{"usedPercent":34,"windowDurationMins":300},"secondary":{"usedPercent":47,"windowDurationMins":10080},"credits":{"balance":"500","hasCredits":true,"unlimited":false}}}}}\n' "$request_id"
+          elif [[ "$request" == *'"method"'*'account'*'read'* ]]; then
+            method='account/read'
+            builtin printf '{"id":%s,"result":{"account":{"type":"chatgpt","email":"account-%s@example.invalid","planType":"test"}}}\n' "$request_id" "$launch_count"
+          else
+            builtin printf 'launch=%s ignored=unknown-method id=%s\n' "$launch_count" "$request_id" >> "$transcript_file"
+            continue
+          fi
+          # zsh's builtin writes directly to the pipe, without stdio buffering.
+          builtin printf 'launch=%s sent=%s id=%s\n' "$launch_count" "$method" "$request_id" >> "$transcript_file"
         done
+        builtin printf 'launch=%s stdin-closed\n' "$launch_count" >> "$transcript_file"
         """
 
         try script.write(to: executableURL, atomically: true, encoding: .utf8)
@@ -178,6 +213,11 @@ private final class FakeAppServerFixture: @unchecked Sendable {
         return count
     }
 
+    func transcript() -> String {
+        (try? String(contentsOf: transcriptURL, encoding: .utf8))?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? "<empty>"
+    }
+
     func remove() {
         try? FileManager.default.removeItem(at: directoryURL)
     }
@@ -185,4 +225,20 @@ private final class FakeAppServerFixture: @unchecked Sendable {
 
 private enum FixtureError: Error {
     case invalidLaunchCount
+}
+
+private struct FakeAppServerDiagnosticError: Error, CustomStringConvertible, LocalizedError {
+    let stage: String
+    let underlyingError: String
+    let transcript: String
+
+    var description: String {
+        """
+        Fake app-server failed during \(stage): \(underlyingError)
+        Transcript:
+        \(transcript)
+        """
+    }
+
+    var errorDescription: String? { description }
 }

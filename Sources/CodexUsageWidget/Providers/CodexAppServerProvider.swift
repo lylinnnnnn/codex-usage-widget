@@ -26,16 +26,19 @@ actor CodexAppServerProvider: CodexUsageSnapshotProviding, CodexUsageEventProvid
 
     private let executableLocator: @Sendable () -> URL?
     private let creditConfigurationProvider: any CreditDisplayConfigurationProviding
+    private let requestTimeout: TimeInterval
 
     init(
         executableLocator: @escaping @Sendable () -> URL? = {
             CodexExecutableLocator.locate()
         },
         creditConfigurationProvider: any CreditDisplayConfigurationProviding =
-            CreditDisplayConfigurationFileProvider()
+            CreditDisplayConfigurationFileProvider(),
+        requestTimeout: TimeInterval = 8
     ) {
         self.executableLocator = executableLocator
         self.creditConfigurationProvider = creditConfigurationProvider
+        self.requestTimeout = requestTimeout
     }
 
     func fetchSnapshot() async throws -> CodexUsageSnapshot {
@@ -130,7 +133,7 @@ actor CodexAppServerProvider: CodexUsageSnapshotProviding, CodexUsageEventProvid
 
         let connection = CodexAppServerConnection(
             executableURL: executableURL,
-            timeout: 8,
+            timeout: requestTimeout,
             eventSink: { [weak self] event in
                 await self?.handleSessionEvent(
                     event,
