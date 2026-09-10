@@ -16,9 +16,9 @@
 
 ## Codex usage at a glance
 
-![Codex Usage Widget preview](Assets/screenshot.svg)
+![Codex Usage Widget floating on a macOS desktop with 5-hour and weekly usage](Assets/codex-usage-widget-hero.png)
 
-A compact capsule widget keeps Codex usage visible on your Mac desktop without taking over your workspace. The preview uses fictional mock values and contains no account or usage data. The hourglass app icon and preview artwork were created for this project; asset details are documented in [Assets/README.md](Assets/README.md).
+A real macOS desktop showing the floating widget with 5-hour and weekly usage remaining.
 
 ## Adapts to the data available
 
@@ -30,9 +30,11 @@ A compact capsule widget keeps Codex usage visible on your Mac desktop without t
 
 The widget displays only the usage windows and Credits data returned by your local Codex service.
 
-## Native menu bar controls
+## Menu Bar Controls
 
 Check the latest usage summary and update time, refresh on demand, show or hide the desktop widget, and quit directly from the macOS menu bar.
+
+![Codex Usage menu with the latest usage and update time, Hide Widget, Refresh Now, and Quit Codex Usage, beside the floating widget](Assets/menu-bar-controls.png)
 
 ## Highlights
 
