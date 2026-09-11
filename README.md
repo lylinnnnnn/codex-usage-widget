@@ -1,5 +1,10 @@
 <div align="center">
 
+<p>
+<img src="Assets/simple-app-icon.png" alt="Simple App icon" width="96">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="Assets/detailed-app-icon.png" alt="Detailed App icon" width="96">
+</p>
+
 # Codex Usage Widgets
 
 **ONE REPOSITORY · TWO MACOS APPS**
