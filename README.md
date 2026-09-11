@@ -99,7 +99,7 @@ Credits appears only when a balance is available.
 </td>
 <td width="33%" align="center">
 
-### Monthly
+### Monthly+ Credits
 
 <img src="Assets/codex-state-monthly.jpg" alt="Monthly state" width="100%">
 
