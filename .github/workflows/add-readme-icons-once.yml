@@ -1,0 +1,58 @@
+name: Add README app icons once
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/add-readme-icons-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  add-icons:
+    runs-on: macos-14
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Export both app icons to PNG
+        shell: bash
+        run: |
+          set -euo pipefail
+          sips -s format png Resources/AppIcon.icns --out Assets/simple-app-icon.png >/dev/null
+          sips -Z 512 Assets/simple-app-icon.png >/dev/null
+          sips -s format png Resources/CodexUsageCapsuleWidget/AppIcon.icns --out Assets/detailed-app-icon.png >/dev/null
+          sips -Z 512 Assets/detailed-app-icon.png >/dev/null
+
+      - name: Add icons to README header
+        shell: python3 {0}
+        run: |
+          from pathlib import Path
+
+          path = Path("README.md")
+          text = path.read_text()
+          old = '<div align="center">\n\n# Codex Usage Widgets'
+          new = '''<div align="center">
+
+<p>
+<img src="Assets/simple-app-icon.png" alt="Simple App icon" width="96">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="Assets/detailed-app-icon.png" alt="Detailed App icon" width="96">
+</p>
+
+# Codex Usage Widgets'''
+          if old not in text:
+              raise SystemExit("README header pattern not found; refusing to make an unexpected edit")
+          path.write_text(text.replace(old, new, 1))
+
+      - name: Commit README icons and remove one-off workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md Assets/simple-app-icon.png Assets/detailed-app-icon.png
+          git rm .github/workflows/add-readme-icons-once.yml
+          git commit -m "Add both app icons to README"
+          git push origin HEAD:main
