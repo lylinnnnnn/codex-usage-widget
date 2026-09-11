@@ -12,13 +12,11 @@ permissions:
 
 jobs:
   add-icons:
-    runs-on: macos-14
+    runs-on: macos-latest
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Export both app icons to PNG
-        shell: bash
         run: |
           set -euo pipefail
           sips -s format png Resources/AppIcon.icns --out Assets/simple-app-icon.png >/dev/null
@@ -26,12 +24,11 @@ jobs:
           sips -s format png Resources/CodexUsageCapsuleWidget/AppIcon.icns --out Assets/detailed-app-icon.png >/dev/null
           sips -Z 512 Assets/detailed-app-icon.png >/dev/null
 
-      - name: Add icons to README header
-        shell: python3 {0}
+      - name: Update README header
         run: |
+          python3 <<'PY'
           from pathlib import Path
-
-          path = Path("README.md")
+          path = Path('README.md')
           text = path.read_text()
           old = '<div align="center">\n\n# Codex Usage Widgets'
           new = '''<div align="center">
@@ -43,16 +40,15 @@ jobs:
 
 # Codex Usage Widgets'''
           if old not in text:
-              raise SystemExit("README header pattern not found; refusing to make an unexpected edit")
+              raise SystemExit('README header pattern not found')
           path.write_text(text.replace(old, new, 1))
+          PY
 
-      - name: Commit README icons and remove one-off workflow
-        shell: bash
+      - name: Commit changes
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add README.md Assets/simple-app-icon.png Assets/detailed-app-icon.png
-          git rm .github/workflows/add-readme-icons-once.yml
           git commit -m "Add both app icons to README"
           git push origin HEAD:main
