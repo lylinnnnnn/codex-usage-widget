@@ -137,7 +137,16 @@ Monthly usage display, with Credits when available.
 
 ## INSTALLATION
 
-# Build locally from source
+# Download a release
+
+Prebuilt ZIPs are available from [GitHub Releases](https://github.com/lylinnnnnn/codex-usage-widget/releases). Choose the app that fits how much detail you want:
+
+- **CodexUsageWidget** — the minimal single-bar widget
+- **CodexUsageCapsuleWidget** — the adaptive detailed widget
+
+The current v0.1.0 packages are Apple Silicon (arm64) builds for macOS 13 Ventura or later. Download the corresponding ZIP, unzip it to get the matching `.app`, then move it to `/Applications` if you like.
+
+v0.1.0 uses ad-hoc signing and is not yet Apple notarized, so macOS may ask for confirmation the first time you open it. In Finder, right-click the app and choose **Open**, or allow it in **System Settings → Privacy & Security**.
 
 <table>
 <tr>
