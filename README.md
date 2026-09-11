@@ -219,3 +219,10 @@ open build/CodexUsageCapsuleWidget.app
 **Disclaimer:** Unofficial project. Not affiliated with or endorsed by OpenAI.
 
 Codex, ChatGPT, OpenAI, and related names and marks belong to their respective owners.
+
+---
+
+<p align="center">
+© 2026 lylinnnnnn. All rights reserved.<br>
+Logo and app icons are not licensed for reuse or redistribution.
+</p>
