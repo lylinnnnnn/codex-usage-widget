@@ -4,7 +4,7 @@ import Foundation
 
 @MainActor
 final class StatusBarController: NSObject, NSMenuDelegate {
-    private let viewModel: UsageViewModel
+    private let viewModel: RateLimitSnapshotViewModel
     private let widgetWindowController: WidgetWindowController
     private let statusItem: NSStatusItem
     private let menu = NSMenu()
@@ -22,7 +22,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     private var cancellables = Set<AnyCancellable>()
 
     init(
-        viewModel: UsageViewModel,
+        viewModel: RateLimitSnapshotViewModel,
         widgetWindowController: WidgetWindowController
     ) {
         self.viewModel = viewModel
@@ -136,11 +136,13 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     }
 
     private var usageTitle: String {
-        guard let usage = viewModel.displaySnapshot?.items.first else {
+        guard let items = viewModel.displaySnapshot?.items, !items.isEmpty else {
             return "Codex Usage        --"
         }
 
-        return "Codex Usage        \(usage.valueText)"
+        let summary = items.map { "\($0.kind.rawValue) \($0.valueText)" }
+            .joined(separator: " · ")
+        return "Codex Usage        \(summary)"
     }
 
     private var updateTitle: String {

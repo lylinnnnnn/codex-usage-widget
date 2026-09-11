@@ -2,65 +2,62 @@ import SwiftUI
 
 struct WidgetView: View {
     enum Metrics {
-        static let windowWidth: CGFloat = 112
-        static let usageAreaHeight: CGFloat = 202
-        static let creditsTopSpacing: CGFloat = 8
-        static let columnSpacing: CGFloat = 0
-
-        static func windowHeight(hasCredits: Bool) -> CGFloat {
-            usageAreaHeight + (hasCredits
-                ? creditsTopSpacing + CreditsAccessoryCapsuleView.Metrics.height
-                : 0)
-        }
+        static let windowWidth: CGFloat = 56
+        static let windowHeight: CGFloat = 202
+        static let barWidth: CGFloat = 12
+        static let barHeight: CGFloat = 120
+        static let percentageHeight: CGFloat = 18
+        static let labelHeight: CGFloat = 15
+        static let percentageToBarMinimum: CGFloat = 6
+        static let barToLabelMinimum: CGFloat = 7
     }
 
     @ObservedObject var viewModel: UsageViewModel
 
     var body: some View {
-        let credits = viewModel.displaySnapshot?.credits
+        let usage = viewModel.displaySnapshot?.items.first
 
-        VStack(spacing: credits == nil ? 0 : Metrics.creditsTopSpacing) {
-            usageCapsules
+        VStack(spacing: 0) {
+            Text(usage?.valueText ?? "--%")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(Color.white.opacity(0.92))
+                .frame(height: Metrics.percentageHeight)
 
-            if let credits {
-                CreditsAccessoryCapsuleView(item: credits)
+            Spacer(minLength: Metrics.percentageToBarMinimum)
+
+            GeometryReader { geometry in
+                ZStack(alignment: .bottom) {
+                    Capsule()
+                        .fill(Color.white.opacity(0.20))
+
+                    Capsule()
+                        .fill(Color.white.opacity(0.96))
+                        .frame(
+                            height: CapsuleFillMath.height(
+                                for: usage?.fillPercent ?? 0,
+                                within: geometry.size.height
+                            )
+                        )
+                }
+                .clipShape(Capsule())
             }
+            .frame(width: Metrics.barWidth, height: Metrics.barHeight)
+
+            Spacer(minLength: Metrics.barToLabelMinimum)
+
+            Text("Codex")
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(Color.white.opacity(0.82))
+                .frame(height: Metrics.labelHeight)
         }
         .frame(
             width: Metrics.windowWidth,
-            height: Metrics.windowHeight(hasCredits: credits != nil),
-            alignment: .top
-        )
-    }
-
-    private var usageCapsules: some View {
-        HStack(alignment: .top, spacing: Metrics.columnSpacing) {
-            if viewModel.displaySnapshot?.items.isEmpty == false {
-                ForEach(viewModel.displaySnapshot?.items ?? []) { item in
-                    RateLimitCapsuleView(item: item)
-                }
-                ForEach(
-                    0..<max(
-                        0,
-                        CapsuleDisplaySnapshot.maximumVisibleItems
-                            - (viewModel.displaySnapshot?.items.count ?? 0)
-                    ),
-                    id: \.self
-                ) { _ in
-                    Color.clear.frame(
-                        width: RateLimitCapsuleView.Metrics.columnWidth,
-                        height: RateLimitCapsuleView.Metrics.columnHeight
-                    )
-                }
-            } else {
-                RateLimitCapsuleView(unavailableKind: .fiveHour)
-                RateLimitCapsuleView(unavailableKind: .weekly)
-            }
-        }
-        .frame(
-            width: Metrics.windowWidth,
-            height: Metrics.usageAreaHeight
+            height: Metrics.windowHeight
         )
         .contentShape(Rectangle())
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Codex usage")
+        .accessibilityValue(usage?.accessibilityValue ?? "Usage unavailable")
+        .accessibilityHint("Remaining Codex usage")
     }
 }

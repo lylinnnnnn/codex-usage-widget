@@ -5,17 +5,17 @@
     <key>CFBundleDevelopmentRegion</key>
     <string>en</string>
     <key>CFBundleDisplayName</key>
-    <string>Codex Usage Widget</string>
+    <string>Codex Usage Capsule Widget</string>
     <key>CFBundleExecutable</key>
-    <string>CodexUsageWidget</string>
-	<key>CFBundleIdentifier</key>
-	<string>io.github.lylinnnnnn.codexusagewidget</string>
-	<key>CFBundleIconFile</key>
-	<string>AppIcon</string>
-	<key>CFBundleInfoDictionaryVersion</key>
+    <string>CodexUsageCapsuleWidget</string>
+    <key>CFBundleIdentifier</key>
+    <string>io.github.lylinnnnnn.codexusagecapsulewidget</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
+    <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
-    <string>CodexUsageWidget</string>
+    <string>CodexUsageCapsuleWidget</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>

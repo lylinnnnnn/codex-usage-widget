@@ -39,12 +39,20 @@ let package = Package(
         .executable(
             name: "CodexUsageWidget",
             targets: ["CodexUsageWidget"]
+        ),
+        .executable(
+            name: "CodexUsageCapsuleWidget",
+            targets: ["CodexUsageCapsuleWidget"]
         )
     ],
     targets: [
         .executableTarget(
             name: "CodexUsageWidget",
             path: "Sources/CodexUsageWidget"
+        ),
+        .executableTarget(
+            name: "CodexUsageCapsuleWidget",
+            path: "Sources/CodexUsageCapsuleWidget"
         ),
         .testTarget(
             name: "CodexUsageWidgetTests",

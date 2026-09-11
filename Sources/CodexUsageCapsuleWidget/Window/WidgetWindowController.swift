@@ -1,42 +1,37 @@
 import AppKit
+import Combine
 import SwiftUI
 
 @MainActor
 final class WidgetWindowController: NSObject, NSWindowDelegate {
     private let panel: NSPanel
-    private let positionStore: WindowPositionStore
-    private let refreshService: RefreshService
-    let viewModel: UsageViewModel
+    private let positionStore: CapsuleWindowPositionStore
+    private let refreshService: RateLimitRefreshService
+    let viewModel: RateLimitSnapshotViewModel
     private var hasShownPanel = false
+    private var sizeCancellable: AnyCancellable?
 
     var isVisible: Bool {
         panel.isVisible
     }
 
     override init() {
-        let usesMockData = ProcessInfo.processInfo.arguments.contains("--mock-usage")
-        let liveProvider: CodexAppServerProvider? = usesMockData
-            ? nil
-            : CodexAppServerProvider()
-        let snapshotProvider: any CodexUsageSnapshotProviding
-        if let liveProvider {
-            snapshotProvider = liveProvider
-        } else {
-            snapshotProvider = MockCodexUsageProvider()
-        }
-        let viewModel = UsageViewModel(snapshotProvider: snapshotProvider)
+        let snapshotProvider = CodexAppServerLiveRateLimitProvider()
+        let viewModel = RateLimitSnapshotViewModel(
+            snapshotProvider: snapshotProvider
+        )
         self.viewModel = viewModel
-        positionStore = WindowPositionStore()
-        refreshService = RefreshService(
+        positionStore = CapsuleWindowPositionStore()
+        refreshService = RateLimitRefreshService(
             viewModel: viewModel,
-            eventProvider: liveProvider
+            eventProvider: snapshotProvider
         )
         panel = NSPanel(
             contentRect: NSRect(
                 origin: .zero,
                 size: NSSize(
                     width: WidgetView.Metrics.windowWidth,
-                    height: WidgetView.Metrics.windowHeight
+                    height: WidgetView.Metrics.windowHeight(hasCredits: false)
                 )
             ),
             styleMask: [.borderless, .nonactivatingPanel],
@@ -46,6 +41,7 @@ final class WidgetWindowController: NSObject, NSWindowDelegate {
 
         super.init()
         configurePanel()
+        bindPanelSize()
     }
 
     func show() {
@@ -57,6 +53,12 @@ final class WidgetWindowController: NSObject, NSWindowDelegate {
         }
         panel.orderFrontRegardless()
         refreshService.start()
+#if DEBUG
+        print(
+            "CodexUsageCapsuleWidget ready "
+                + "frame=\(panel.frame) visible=\(panel.isVisible)"
+        )
+#endif
     }
 
     func hide() {
@@ -68,7 +70,7 @@ final class WidgetWindowController: NSObject, NSWindowDelegate {
     }
 
     func refreshNow() {
-        refreshService.reconfirmNow()
+        refreshService.refreshNow()
     }
 
     func stop() async {
@@ -79,17 +81,17 @@ final class WidgetWindowController: NSObject, NSWindowDelegate {
     func windowDidMove(_ notification: Notification) {
         let usageOnlyOrigin = NSPoint(
             x: panel.frame.origin.x,
-            y: panel.frame.maxY - WidgetView.Metrics.windowHeight
+            y: panel.frame.maxY - WidgetView.Metrics.usageAreaHeight
         )
         positionStore.save(origin: usageOnlyOrigin)
     }
 
     private func configurePanel() {
         panel.delegate = self
-        panel.title = "Codex Usage Widget"
-        panel.setAccessibilityLabel("Codex Usage Widget")
+        panel.title = "Codex Usage Capsule Widget"
+        panel.setAccessibilityLabel("Codex Usage Capsule Widget")
         panel.setAccessibilityHelp("Floating Codex usage widget")
-        panel.setAccessibilityIdentifier("CodexUsageWidgetPanel")
+        panel.setAccessibilityIdentifier("CodexUsageCapsuleWidgetPanel")
         panel.isOpaque = false
         panel.backgroundColor = .clear
         panel.hasShadow = false
@@ -104,6 +106,27 @@ final class WidgetWindowController: NSObject, NSWindowDelegate {
         )
     }
 
+    private func bindPanelSize() {
+        sizeCancellable = viewModel.$displaySnapshot
+            .map { $0?.credits != nil }
+            .removeDuplicates()
+            .sink { [weak self] hasCredits in
+                self?.updatePanelHeight(hasCredits: hasCredits)
+            }
+    }
+
+    private func updatePanelHeight(hasCredits: Bool) {
+        let targetHeight = WidgetView.Metrics.windowHeight(
+            hasCredits: hasCredits
+        )
+        guard panel.frame.height != targetHeight else { return }
+
+        var frame = panel.frame
+        let topEdge = frame.maxY
+        frame.size.height = targetHeight
+        frame.origin.y = topEdge - targetHeight
+        panel.setFrame(frame, display: panel.isVisible)
+    }
 }
 
 private final class DraggableHostingView<Content: View>: NSHostingView<Content> {
