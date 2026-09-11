@@ -1,161 +1,184 @@
-<p align="center">
-  <img src="Assets/AppIcon.png" width="128" height="128" alt="Codex Usage Widget hourglass app icon">
-</p>
+<div align="center">
 
-<h1 align="center">Codex Usage Widget</h1>
+# Codex Usage Widgets
 
-<p align="center">Two native macOS desktop widgets that keep your Codex usage limits—and Credits when available—visible at a glance.</p>
+**ONE REPOSITORY · TWO MACOS APPS**
 
-<p align="center">This repository includes two standalone macOS apps for keeping Codex usage visible on your desktop.</p>
+Two native macOS apps for keeping Codex usage visible on your desktop.
 
-<p align="center">The two apps present data from the same local Codex service in different desktop forms: a single Codex bar or an adaptive Capsule view.</p>
+One stays intentionally minimal. The other shows the usage windows and Credits data returned by your local Codex service.
 
-<p align="center">
-  <a href="#two-apps-one-repository">Two apps</a> ·
-  <a href="#installation">Installation</a> ·
-  <a href="#privacy">Privacy</a> ·
-  <a href="#build-from-source">Build from source</a>
-</p>
+</div>
 
-## Two apps, one repository
+---
 
-This repository contains two standalone macOS apps—not two interface modes of one app. Each has its own executable, app bundle, bundle identifier, desktop position, menu-bar controls, and local configuration. Build, launch, and use either app independently, or run both side by side. When GitHub Releases are available, each app will have its own download.
+## APP 01
 
-| App | What it does |
-| --- | --- |
-| `CodexUsageWidget` | A compact, single-bar desktop app. It keeps the current Codex usage visible as one vertical `Codex` bar. |
-| `CodexUsageCapsuleWidget` | A separate adaptive Capsule-style desktop app with its own UI implementation, refresh cycle, menu-bar controls, desktop position, and Credits pricing preference. It presents rate-limit windows, Monthly usage, and Credits when available from the local Codex service. |
+# Simple App
+
+A minimal desktop widget with one vertical usage bar, a percentage above it, and “Codex” underneath.
 
 <table>
-  <tr>
-    <td align="center" width="50%">
-      <strong>CodexUsageWidget</strong><br>
-      <sub>Single Codex usage bar</sub><br><br>
-      <img src="Assets/codex-usage-widget-single-bar.png" height="220" alt="CodexUsageWidget showing one vertical Codex usage bar at 40 percent">
-    </td>
-    <td align="center" width="50%">
-      <strong>CodexUsageCapsuleWidget</strong><br>
-      <sub>Adaptive rate-limit, Monthly, and Credits capsules</sub><br><br>
-      <img src="Assets/desktop-example-03.jpg" height="220" alt="CodexUsageCapsuleWidget showing a Monthly capsule and Credits on a macOS desktop">
-    </td>
-  </tr>
+<tr>
+<td width="56%" align="center">
+<img src="Assets/codex-simple-app.jpg" alt="Simple App screenshot" width="100%">
+</td>
+<td width="44%" valign="top">
+
+### The quiet version.
+
+Designed for people who only want the essential Codex usage number visible at a glance.
+
+- Single vertical usage bar
+- Percentage above the bar
+- “Codex” label below
+- Minimal visual footprint
+
+</td>
+</tr>
 </table>
 
-## Capsule usage at a glance
+---
 
-![CodexUsageCapsuleWidget floating on a macOS desktop with 5-hour and weekly rate-limit capsules](Assets/codex-usage-widget-hero.png)
+## APP 02
 
-A real macOS desktop showing the `CodexUsageCapsuleWidget` 5-hour and weekly rate-limit capsules.
+# Detailed App
 
-## Capsule data adapts to what is available
+A more complete Codex usage widget that adapts to the usage windows and Credits data returned by your local Codex service.
 
-| Available data | Capsule display |
-| --- | --- |
-| 5-hour and weekly limits | Two usage capsules |
-| 5-hour and weekly limits, plus Credits | Two usage capsules plus a Credits capsule |
-| Monthly limit | A Monthly capsule, plus Credits when available |
+<table>
+<tr>
+<td width="56%" align="center">
+<img src="Assets/codex-detailed-app.jpg" alt="Detailed App screenshot" width="100%">
+</td>
+<td width="44%" valign="top">
 
-`CodexUsageCapsuleWidget` displays only the usage windows reported by your local Codex service, and shows Credits only when that service makes a balance available. `CodexUsageWidget` keeps the current reading in one vertical `Codex` bar.
+### More detail when you need it.
 
-## Menu Bar Controls
+The detailed app changes its layout based on the usage data that is actually available.
 
-`CodexUsageWidget` has its own menu-bar controls to refresh on demand, show or hide its single desktop bar, and quit. `CodexUsageCapsuleWidget` provides a separate set of controls.
+- 5-hour and weekly usage when available
+- Monthly usage when returned by the account
+- Credits appears only when available
+- Menu bar controls for refresh, show/hide, and quit
 
-![CodexUsageWidget menu-bar controls beside its single Codex usage bar](Assets/codex-usage-widget-menu-bar-controls.png)
+</td>
+</tr>
+</table>
 
-## Highlights
+---
 
-- **Two standalone apps** — Build, package, launch, and run the two apps independently.
-- **Single Codex bar** — `CodexUsageWidget` keeps the current reading visible in one compact, draggable, always-on-top bar.
-- **Adaptive Capsule view** — `CodexUsageCapsuleWidget` presents the available rate-limit windows, Monthly usage, and Credits capsules.
-- **Native macOS experience** — Use the desktop widget together with a lightweight menu bar summary and controls.
-- **Local-first privacy** — No credential scraping, browser-cookie access, telemetry, or account-data uploads.
-- **Reliable refreshes** — Updates on local Codex events, every 60 seconds, after wake, and on demand.
-- **Consistent account state** — Keeps the last successful reading through temporary failures and prevents stale session data from replacing current usage.
+## DETAILED APP · THREE STATES
 
-## On your desktop
+# Adaptive display states
 
-### CodexUsageWidget
+<table>
+<tr>
+<td width="33%" align="center">
 
-A real macOS desktop state with the single `Codex` usage bar in place.
+### 5-hour + Weekly
+
+<img src="Assets/codex-state-5h-weekly.jpg" alt="5-hour and Weekly state" width="100%">
+
+Two usage indicators when both usage windows are available.
+
+</td>
+<td width="33%" align="center">
+
+### 5-hour + Weekly + Credits
+
+<img src="Assets/codex-state-5h-weekly-credits.jpg" alt="5-hour Weekly and Credits state" width="100%">
+
+Credits appears only when a balance is available.
+
+</td>
+<td width="33%" align="center">
+
+### Monthly
+
+<img src="Assets/codex-state-monthly.jpg" alt="Monthly state" width="100%">
+
+Monthly usage display, with Credits when available.
+
+</td>
+</tr>
+</table>
+
+---
+
+## MENU BAR
+
+# Controls stay close by
 
 <p align="center">
-  <img src="Assets/codex-usage-widget-desktop.png" width="100%" alt="CodexUsageWidget showing one vertical Codex usage bar on a black macOS desktop">
+<img src="Assets/codex-menu-bar.jpg" alt="Menu bar controls" width="100%">
 </p>
 
-### CodexUsageCapsuleWidget
+---
 
-Real desktop views of the adaptive Capsule app.
+## HIGHLIGHTS
 
-<p align="center">
-  <img src="Assets/desktop-example-01.jpg" width="32%" alt="CodexUsageCapsuleWidget showing rate-limit usage and Credits on a macOS desktop">
-  <img src="Assets/desktop-example-02.jpg" width="32%" alt="CodexUsageCapsuleWidget menu controls alongside 5-hour and weekly rate-limit capsules on a macOS desktop">
-  <img src="Assets/desktop-example-03.jpg" width="32%" alt="CodexUsageCapsuleWidget showing a monthly limit and Credits on a macOS desktop">
-</p>
+# Native, lightweight, and local-first
 
-## Installation
+<table>
+<tr>
+<td width="33%"><strong>Desktop-first</strong><br>Keep Codex usage visible without opening a browser page.</td>
+<td width="33%"><strong>Adaptive data</strong><br>The detailed app shows only the usage data actually returned by the local service.</td>
+<td width="33%"><strong>Menu bar controls</strong><br>Refresh, show or hide the widget, and quit from the menu bar.</td>
+</tr>
+<tr>
+<td><strong>Local-first privacy</strong><br>No browser-cookie access, credential scraping, telemetry, or account-data uploads by the app.</td>
+<td><strong>Reliable refreshes</strong><br>Updates on local Codex events, every 60 seconds, after wake, and on demand.</td>
+<td><strong>Native macOS</strong><br>Built with SwiftUI and AppKit.</td>
+</tr>
+</table>
 
-A downloadable GitHub Release is not available yet. Until then, build either standalone app from source.
+---
 
-## Requirements
+## INSTALLATION
 
-- macOS 13 Ventura or later.
-- Apple Silicon (arm64) for the current packaged builds.
-- Swift 6 when building from source.
-- Codex installed locally, either through the Codex CLI or a compatible ChatGPT app installation.
-- A signed-in Codex/ChatGPT account.
+# Build locally from source
 
-The current packaging script produces Apple Silicon (arm64) apps only. Intel and universal packaged builds are not provided.
+<table>
+<tr>
+<td width="50%" valign="top">
 
-Windows and Linux are not supported because the app uses AppKit and SwiftUI.
+### Requirements
 
-## Everyday use
+- macOS 13 Ventura or later
+- Apple Silicon (arm64) for the current packaged builds
+- Swift 6 when building from source
+- Codex installed locally
+- A signed-in Codex / ChatGPT account
 
-Launch either app while Codex is installed and signed in. Drag its floating widget to reposition it. Use its menu bar icon to refresh, hide or show the widget, or quit. The two apps can run at the same time.
+</td>
+<td width="50%" valign="top">
 
-## Credits
+### Everyday use
 
-Credits are optional. `CodexUsageCapsuleWidget` shows a Credits capsule only when the local Codex service provides a balance.
+Launch either app while Codex is installed and signed in.
 
-`CodexUsageCapsuleWidget` uses its own local Credits pricing preference:
+Reposition the widget on the desktop and use the menu bar controls when needed.
 
-```text
-~/Library/Application Support/CodexUsageCapsuleWidget/credit-pricing.json
-```
+The two apps can run independently or side by side.
 
-Its USD display uses the user-configurable `usdPerCredit` assumption in that file. The bundled `0.04` value is a project assumption, not an official or permanent OpenAI price.
+</td>
+</tr>
+</table>
 
-## Privacy
+---
 
-- Both apps communicate with the locally installed `codex app-server` over standard input/output.
-- `CodexUsageWidget` requests account state with token refresh disabled; both apps read the available rate-limit data from that local service.
-- Neither app reads `~/.codex/auth.json`, browser cookies, or browser login data.
-- Neither app asks for, stores, or uploads API keys, passwords, or authentication tokens.
-- Neither app collects or uploads account or usage data.
-- Account information stays in memory on the local Mac. `CodexUsageWidget` uses a one-way account fingerprint only to keep current usage correctly associated; account identifiers are not displayed or persisted.
-- Each app stores its own window position. `CodexUsageCapsuleWidget` also stores its optional local Credits preference.
+## BUILD FROM SOURCE
 
-The locally installed Codex service remains responsible for its own authenticated communication with OpenAI.
-
-## Known Limitations
-
-- macOS only; minimum version is macOS 13.
-- Current packaged builds are Apple Silicon (arm64) only; Intel and universal packaged builds are not provided.
-- The packaged apps are ad-hoc signed and not notarized. Developer ID signing, automatic updates, and automated releases are not included yet.
-- Availability and shape of the local app-server response may change between Codex versions.
-- Credits currency estimates depend entirely on the user's local assumption.
-
-## Build from Source
+# Local build
 
 ```bash
 git clone https://github.com/lylinnnnnn/codex-usage-widget.git
 cd codex-usage-widget
-
-# Optional: run the project test suite.
 swift test
 ```
 
-### CodexUsageWidget
+### Simple App · CodexUsageWidget
 
 ```bash
 swift build --product CodexUsageWidget
@@ -163,7 +186,7 @@ swift build --product CodexUsageWidget
 open build/CodexUsageWidget.app
 ```
 
-### CodexUsageCapsuleWidget
+### Detailed App · CodexUsageCapsuleWidget
 
 ```bash
 swift build --product CodexUsageCapsuleWidget
@@ -171,34 +194,14 @@ swift build --product CodexUsageCapsuleWidget
 open build/CodexUsageCapsuleWidget.app
 ```
 
-Each packaging command produces a separate arm64 `.app` and ZIP in `build/`. Both bundles are ad-hoc signed and not notarized. Intel packages and universal binaries are not currently provided, and a downloadable GitHub Release is not available yet.
+---
 
-For local UI development of `CodexUsageWidget` without reading an account, run:
+## LICENSE & DISCLAIMER
 
-```bash
-swift run CodexUsageWidget --mock-usage
-```
+# Project information
 
-Set `CODEX_USAGE_WIDGET_CODEX_PATH` for `CodexUsageWidget`, or `CODEX_CAPSULE_WIDGET_CODEX_PATH` for `CodexUsageCapsuleWidget`, to an explicit executable path only when automatic Codex lookup does not find your installation.
+**License:** MIT. See [LICENSE](LICENSE).
 
-## Contributing
-
-Issues and focused pull requests are welcome. Please build both apps and run the test suite before submitting a change:
-
-```bash
-swift build --product CodexUsageWidget
-swift build --product CodexUsageCapsuleWidget
-swift test
-```
-
-Do not include credentials, account data, local logs, built apps, or machine-specific paths in issues or commits.
-
-## License
-
-MIT. See [LICENSE](LICENSE).
-
-## Disclaimer
-
-Unofficial project. Not affiliated with or endorsed by OpenAI.
+**Disclaimer:** Unofficial project. Not affiliated with or endorsed by OpenAI.
 
 Codex, ChatGPT, OpenAI, and related names and marks belong to their respective owners.
