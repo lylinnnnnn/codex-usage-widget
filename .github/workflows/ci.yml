@@ -5,7 +5,7 @@ on:
   pull_request:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build-and-test:
@@ -19,3 +19,59 @@ jobs:
         run: swift build
       - name: Test
         run: swift test
+
+  add-readme-icons-once:
+    if: github.event_name == 'push' && github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Export both app icons and update README
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import struct
+
+          def extract_largest_png(src, dst):
+              data = Path(src).read_bytes()
+              if data[:4] != b'icns':
+                  raise SystemExit(f'Not an ICNS file: {src}')
+              pos = 8
+              pngs = []
+              while pos + 8 <= len(data):
+                  size = struct.unpack('>I', data[pos+4:pos+8])[0]
+                  chunk = data[pos+8:pos+size]
+                  if chunk.startswith(b'\x89PNG\r\n\x1a\n'):
+                      pngs.append(chunk)
+                  if size < 8:
+                      break
+                  pos += size
+              if not pngs:
+                  raise SystemExit(f'No embedded PNG found in {src}')
+              Path(dst).write_bytes(max(pngs, key=len))
+
+          extract_largest_png('Resources/AppIcon.icns', 'Assets/simple-app-icon.png')
+          extract_largest_png('Resources/CodexUsageCapsuleWidget/AppIcon.icns', 'Assets/detailed-app-icon.png')
+
+          path = Path('README.md')
+          text = path.read_text()
+          old = '<div align="center">\n\n# Codex Usage Widgets'
+          new = '''<div align="center">
+
+<p>
+<img src="Assets/simple-app-icon.png" alt="Simple App icon" width="96">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="Assets/detailed-app-icon.png" alt="Detailed App icon" width="96">
+</p>
+
+# Codex Usage Widgets'''
+          if old not in text:
+              raise SystemExit('README header pattern not found')
+          path.write_text(text.replace(old, new, 1))
+          PY
+      - name: Commit README icons
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md Assets/simple-app-icon.png Assets/detailed-app-icon.png
+          git commit -m "docs: add both app icons to README"
+          git push origin HEAD:main
