@@ -5,7 +5,7 @@ on:
   pull_request:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build-and-test:
@@ -19,3 +19,15 @@ jobs:
         run: swift build
       - name: Test
         run: swift test
+      - name: Add both app icons to README
+        run: |
+          sips -s format png Resources/AppIcon.icns --out Assets/simple-app-icon.png
+          sips -Z 512 Assets/simple-app-icon.png
+          sips -s format png Resources/CodexUsageCapsuleWidget/AppIcon.icns --out Assets/detailed-app-icon.png
+          sips -Z 512 Assets/detailed-app-icon.png
+          python3 -c 'from pathlib import Path; p=Path("README.md"); s=p.read_text(); old="<div align=\"center\">\n\n# Codex Usage Widgets"; new="<div align=\"center\">\n\n<p>\n<img src=\"Assets/simple-app-icon.png\" alt=\"Simple App icon\" width=\"96\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\n<img src=\"Assets/detailed-app-icon.png\" alt=\"Detailed App icon\" width=\"96\">\n</p>\n\n# Codex Usage Widgets"; assert old in s; p.write_text(s.replace(old,new,1))'
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md Assets/simple-app-icon.png Assets/detailed-app-icon.png
+          git commit -m "docs: add both app icons to README"
+          git push origin HEAD:main
