@@ -9,6 +9,8 @@
 
 **ONE REPOSITORY · TWO MACOS APPS**
 
+**English** | [简体中文](README.zh-CN.md)
+
 Two native macOS apps for keeping Codex usage visible on your desktop.
 
 One stays intentionally minimal. The other shows the usage windows and Credits data returned by your local Codex service.
