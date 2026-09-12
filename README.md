@@ -7,7 +7,7 @@
 
 # Codex Usage Widgets
 
-**ONE REPOSITORY · TWO MACOS APPS**
+**ONE REPOSITORY · TWO macOS APPS**
 
 **English** | [简体中文](README.zh-CN.md)
 
