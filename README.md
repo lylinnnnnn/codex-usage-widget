@@ -51,7 +51,7 @@ Designed for people who only want the essential Codex usage number visible at a 
 
 # Detailed App
 
-A more complete Codex usage widget that adapts to the usage windows and Credits data returned by your local Codex service.
+A more complete Codex usage widget with two display modes: adaptive desktop Capsules and lightweight menu-bar Notch Compact.
 
 <table>
 <tr>
@@ -62,12 +62,41 @@ A more complete Codex usage widget that adapts to the usage windows and Credits 
 
 ### More detail when you need it.
 
-The detailed app changes its layout based on the usage data that is actually available.
+In Capsules mode, the detailed app changes its layout based on the usage data that is actually available.
 
 - 5-hour and weekly usage when available
 - Monthly usage when returned by the account
 - Credits appears only when available
-- Menu bar controls for refresh, show/hide, and quit
+- Menu bar controls for display-mode switching, usage details, Refresh Now, show/hide in Capsules mode, and quit
+
+</td>
+</tr>
+</table>
+
+---
+
+## DISPLAY MODES
+
+# Two ways to keep usage visible
+
+`CodexUsageCapsuleWidget` has two mutually exclusive display modes. Choose one from the menu bar; the selection is preserved after the app restarts.
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+### Capsules
+
+The original adaptive floating-capsule display adapts to the available data, including 5-hour and weekly usage, with monthly usage and Credits when available.
+
+</td>
+<td width="50%" valign="top">
+
+### Notch Compact
+
+New in v0.2.0, a lightweight standard macOS menu-bar mode. Its compact Micro Pill shows `5h 25% · W 88%`, reveals the last update time on hover, and lets you access the existing usage details and Refresh action when clicked.
+
+<img src="Assets/notch-compact-mode.jpg" alt="Notch Compact menu bar screenshot" width="100%">
 
 </td>
 </tr>
@@ -77,7 +106,9 @@ The detailed app changes its layout based on the usage data that is actually ava
 
 ## DETAILED APP · THREE STATES
 
-# Adaptive display states
+# Adaptive data states in Capsules
+
+These are adaptive data states in Capsules, not additional display modes.
 
 <table>
 <tr>
@@ -117,6 +148,8 @@ Monthly usage display, with Credits when available.
 
 # Controls stay close by
 
+Switch between Capsules and Notch Compact, see usage details, refresh, show or hide the Capsules widget when applicable, or quit.
+
 <p align="center">
 <img src="Assets/codex-menu-bar.jpg" alt="Menu bar controls" width="100%">
 </p>
@@ -131,7 +164,7 @@ Monthly usage display, with Credits when available.
 <tr>
 <td width="33%"><strong>Desktop-first</strong><br>Keep Codex usage visible without opening a browser page.</td>
 <td width="33%"><strong>Adaptive data</strong><br>The detailed app shows only the usage data actually returned by the local service.</td>
-<td width="33%"><strong>Menu bar controls</strong><br>Refresh, show or hide the widget, and quit from the menu bar.</td>
+<td width="33%"><strong>Menu bar controls</strong><br>Switch display modes, refresh, show or hide Capsules when applicable, and quit from the menu bar.</td>
 </tr>
 <tr>
 <td><strong>Local-first privacy</strong><br>No browser-cookie access, credential scraping, telemetry, or account-data uploads by the app.</td>
@@ -149,11 +182,11 @@ Monthly usage display, with Credits when available.
 Prebuilt ZIPs are available from [GitHub Releases](https://github.com/lylinnnnnn/codex-usage-widget/releases). Choose the app that fits how much detail you want:
 
 - **CodexUsageWidget** — the minimal single-bar widget
-- **CodexUsageCapsuleWidget** — the adaptive detailed widget
+- **CodexUsageCapsuleWidget** — the adaptive detailed widget with Capsules and Notch Compact display modes
 
-The current v0.1.0 packages are Apple Silicon (arm64) builds for macOS 13 Ventura or later. Download the corresponding ZIP, unzip it to get the matching `.app`, then move it to `/Applications` if you like.
+The current v0.2.0 packages are Apple Silicon (arm64) builds for macOS 13 Ventura or later. Download the corresponding ZIP, unzip it to get the matching `.app`, then move it to `/Applications` if you like.
 
-v0.1.0 uses ad-hoc signing and is not yet Apple notarized, so macOS may ask for confirmation the first time you open it. In Finder, right-click the app and choose **Open**, or allow it in **System Settings → Privacy & Security**.
+v0.2.0 uses ad-hoc signing and is not yet Apple notarized, so macOS may ask for confirmation the first time you open it. In Finder, right-click the app and choose **Open**, or allow it in **System Settings → Privacy & Security**.
 
 <table>
 <tr>
