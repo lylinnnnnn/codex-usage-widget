@@ -27,7 +27,7 @@ private final class AppDelegate: NSObject, NSApplicationDelegate {
             viewModel: controller.viewModel,
             widgetWindowController: controller
         )
-        controller.show()
+        controller.start()
     }
 
     func applicationShouldTerminate(

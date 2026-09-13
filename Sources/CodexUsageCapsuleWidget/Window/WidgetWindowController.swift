@@ -7,6 +7,8 @@ final class WidgetWindowController: NSObject, NSWindowDelegate {
     private let panel: NSPanel
     private let positionStore: CapsuleWindowPositionStore
     private let refreshService: RateLimitRefreshService
+    private let displayModeStore: DisplayModeStore
+    private(set) var displayMode: DisplayMode
     let viewModel: RateLimitSnapshotViewModel
     private var hasShownPanel = false
     private var sizeCancellable: AnyCancellable?
@@ -15,16 +17,20 @@ final class WidgetWindowController: NSObject, NSWindowDelegate {
         panel.isVisible
     }
 
-    override init() {
-        let snapshotProvider = CodexAppServerLiveRateLimitProvider()
+    init(
+        snapshotProvider: any CapsuleDisplaySnapshotProviding = CodexAppServerLiveRateLimitProvider(),
+        userDefaults: UserDefaults = .standard
+    ) {
         let viewModel = RateLimitSnapshotViewModel(
             snapshotProvider: snapshotProvider
         )
         self.viewModel = viewModel
-        positionStore = CapsuleWindowPositionStore()
+        positionStore = CapsuleWindowPositionStore(userDefaults: userDefaults)
+        displayModeStore = DisplayModeStore(userDefaults: userDefaults)
+        displayMode = displayModeStore.load()
         refreshService = RateLimitRefreshService(
             viewModel: viewModel,
-            eventProvider: snapshotProvider
+            eventProvider: snapshotProvider as? any RateLimitEventProviding
         )
         panel = NSPanel(
             contentRect: NSRect(
@@ -44,7 +50,24 @@ final class WidgetWindowController: NSObject, NSWindowDelegate {
         bindPanelSize()
     }
 
+    func start() {
+        // Refreshing belongs to the app lifecycle, including a compact launch.
+        refreshService.start()
+        applyDisplayMode()
+    }
+
+    func setDisplayMode(_ mode: DisplayMode) {
+        displayMode = mode
+        displayModeStore.save(mode)
+        applyDisplayMode()
+    }
+
+    private func applyDisplayMode() {
+        displayMode == .capsules ? show() : hide()
+    }
+
     func show() {
+        guard displayMode == .capsules else { return }
         if !hasShownPanel {
             panel.setFrameOrigin(
                 positionStore.restoredOrigin(for: panel.frame.size)
@@ -52,7 +75,6 @@ final class WidgetWindowController: NSObject, NSWindowDelegate {
             hasShownPanel = true
         }
         panel.orderFrontRegardless()
-        refreshService.start()
 #if DEBUG
         print(
             "CodexUsageCapsuleWidget ready "

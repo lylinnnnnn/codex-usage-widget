@@ -55,6 +55,13 @@ let package = Package(
             path: "Sources/CodexUsageCapsuleWidget"
         ),
         .testTarget(
+            name: "CodexUsageCapsuleWidgetTests",
+            dependencies: ["CodexUsageCapsuleWidget"],
+            path: "Tests/CodexUsageCapsuleWidgetTests",
+            swiftSettings: localTestingSwiftSettings,
+            linkerSettings: localTestingLinkerSettings
+        ),
+        .testTarget(
             name: "CodexUsageWidgetTests",
             dependencies: ["CodexUsageWidget"],
             path: "Tests/CodexUsageWidgetTests",

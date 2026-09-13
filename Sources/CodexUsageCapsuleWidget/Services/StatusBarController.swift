@@ -19,15 +19,19 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         keyEquivalent: ""
     )
     private let widgetVisibilityItem = NSMenuItem()
+    private let creditsItem = NSMenuItem(title: "Credits --", action: nil, keyEquivalent: "")
+    private var displayModeItems: [DisplayMode: NSMenuItem] = [:]
     private var cancellables = Set<AnyCancellable>()
+    private let compactPillView = CompactStatusPillView(frame: .zero)
 
     init(
         viewModel: RateLimitSnapshotViewModel,
-        widgetWindowController: WidgetWindowController
+        widgetWindowController: WidgetWindowController,
+        statusItem: NSStatusItem? = nil
     ) {
         self.viewModel = viewModel
         self.widgetWindowController = widgetWindowController
-        statusItem = NSStatusBar.system.statusItem(
+        self.statusItem = statusItem ?? NSStatusBar.system.statusItem(
             withLength: NSStatusItem.squareLength
         )
         super.init()
@@ -64,6 +68,9 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         button.image = image
         button.imagePosition = .imageOnly
         button.toolTip = "Codex Usage"
+        compactPillView.frame = button.bounds
+        compactPillView.isHidden = true
+        button.addSubview(compactPillView)
         statusItem.menu = menu
     }
 
@@ -74,7 +81,25 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         updatedItem.isEnabled = false
         menu.addItem(usageItem)
         menu.addItem(updatedItem)
+        creditsItem.isEnabled = false
+        menu.addItem(creditsItem)
         menu.addItem(.separator())
+
+        let displayModeMenu = NSMenu(title: "Display Mode")
+        let displayModeItem = NSMenuItem(title: "Display Mode", action: nil, keyEquivalent: "")
+        displayModeItem.submenu = displayModeMenu
+        for mode in DisplayMode.allCases {
+            let item = NSMenuItem(
+                title: mode.title,
+                action: #selector(selectDisplayMode(_:)),
+                keyEquivalent: ""
+            )
+            item.target = self
+            item.representedObject = mode.rawValue
+            displayModeItems[mode] = item
+            displayModeMenu.addItem(item)
+        }
+        menu.addItem(displayModeItem)
 
         widgetVisibilityItem.target = self
         widgetVisibilityItem.action = #selector(toggleWidgetVisibility)
@@ -103,40 +128,85 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
     private func bindUsageState() {
         viewModel.$displaySnapshot
-            .sink { [weak self] _ in
-                self?.updateMenuState()
-            }
-            .store(in: &cancellables)
-
-        viewModel.$status
-            .sink { [weak self] _ in
-                self?.updateMenuState()
-            }
-            .store(in: &cancellables)
-
-        viewModel.$lastUpdated
-            .sink { [weak self] _ in
-                self?.updateMenuState()
-            }
-            .store(in: &cancellables)
-
-        viewModel.$isRefreshing
-            .sink { [weak self] _ in
-                self?.updateMenuState()
+            .combineLatest(viewModel.$status, viewModel.$lastUpdated, viewModel.$isRefreshing)
+            .sink { [weak self] snapshot, status, lastUpdated, isRefreshing in
+                // @Published emits before storage changes; render the emitted
+                // values so the compact title and timestamp never lag a refresh.
+                self?.updateUsageState(
+                    snapshot: snapshot,
+                    status: status,
+                    lastUpdated: lastUpdated,
+                    isRefreshing: isRefreshing
+                )
             }
             .store(in: &cancellables)
     }
 
     private func updateMenuState() {
-        usageItem.title = usageTitle
-        updatedItem.title = updateTitle
+        updateUsageState(
+            snapshot: viewModel.displaySnapshot,
+            status: viewModel.status,
+            lastUpdated: viewModel.lastUpdated,
+            isRefreshing: viewModel.isRefreshing
+        )
+        let mode = widgetWindowController.displayMode
+        for (itemMode, item) in displayModeItems {
+            item.state = itemMode == mode ? .on : .off
+        }
+        // Showing the floating panel would violate compact mode exclusivity.
+        widgetVisibilityItem.isHidden = mode == .notchCompact
         widgetVisibilityItem.title = widgetWindowController.isVisible
             ? "Hide Widget"
             : "Show Widget"
     }
 
-    private var usageTitle: String {
-        guard let items = viewModel.displaySnapshot?.items, !items.isEmpty else {
+    private func updateUsageState(
+        snapshot: CapsuleDisplaySnapshot?,
+        status: RateLimitSnapshotViewModel.Status,
+        lastUpdated: Date?,
+        isRefreshing: Bool
+    ) {
+        usageItem.title = usageTitle(snapshot: snapshot)
+        updatedItem.title = updateTitle(status: status, lastUpdated: lastUpdated, isRefreshing: isRefreshing)
+        creditsItem.title = "Credits \(snapshot?.credits?.valueText ?? "--")"
+        creditsItem.isHidden = snapshot?.credits == nil
+
+        guard let button = statusItem.button else { return }
+        if widgetWindowController.displayMode == .notchCompact {
+            statusItem.length = NSStatusItem.variableLength
+            button.imagePosition = .noImage
+            button.font = CompactStatusPillView.font
+            let fiveHour = snapshot?.items.first { $0.kind == .fiveHour }?.valueText ?? "--"
+            let weekly = snapshot?.items.first { $0.kind == .weekly }?.valueText ?? "--"
+            button.title = "5h \(fiveHour) · W \(weekly)"
+            compactPillView.title = button.title
+            // Keep the native title for intrinsic sizing and accessibility;
+            // the non-interactive decoration renders its visible counterpart.
+            button.attributedTitle = NSAttributedString(
+                string: button.title,
+                attributes: [.font: CompactStatusPillView.font, .foregroundColor: NSColor.clear]
+            )
+            compactPillView.isHidden = false
+            button.toolTip = compactTooltip(lastUpdated: lastUpdated)
+        } else {
+            compactPillView.isHidden = true
+            button.title = ""
+            button.imagePosition = .imageOnly
+            button.toolTip = "Codex Usage"
+            statusItem.length = NSStatusItem.squareLength
+        }
+    }
+
+    private func compactTooltip(lastUpdated: Date?) -> String {
+        guard let lastUpdated else { return "Waiting for usage data…" }
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "HH:mm"
+        return "Updated \(formatter.string(from: lastUpdated))"
+    }
+
+    private func usageTitle(snapshot: CapsuleDisplaySnapshot?) -> String {
+        guard let items = snapshot?.items, !items.isEmpty else {
             return "Codex Usage        --"
         }
 
@@ -145,26 +215,30 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         return "Codex Usage        \(summary)"
     }
 
-    private var updateTitle: String {
-        if viewModel.isRefreshing {
+    private func updateTitle(
+        status: RateLimitSnapshotViewModel.Status,
+        lastUpdated: Date?,
+        isRefreshing: Bool
+    ) -> String {
+        if isRefreshing {
             return "Updating…"
         }
 
-        switch viewModel.status {
+        switch status {
         case .loading:
             return "Waiting for usage data…"
         case .available:
-            return updatedTimeTitle(prefix: "Updated")
+            return updatedTimeTitle(prefix: "Updated", lastUpdated: lastUpdated)
         case .unavailable:
-            guard viewModel.lastUpdated != nil else {
+            guard lastUpdated != nil else {
                 return "Usage unavailable"
             }
-            return updatedTimeTitle(prefix: "Last update failed")
+            return updatedTimeTitle(prefix: "Last update failed", lastUpdated: lastUpdated)
         }
     }
 
-    private func updatedTimeTitle(prefix: String) -> String {
-        guard let lastUpdated = viewModel.lastUpdated else {
+    private func updatedTimeTitle(prefix: String, lastUpdated: Date?) -> String {
+        guard let lastUpdated else {
             return prefix
         }
         let time = DateFormatter.localizedString(
@@ -177,6 +251,13 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
     @objc private func toggleWidgetVisibility() {
         widgetWindowController.toggleVisibility()
+        updateMenuState()
+    }
+
+    @objc private func selectDisplayMode(_ sender: NSMenuItem) {
+        guard let rawValue = sender.representedObject as? String,
+              let mode = DisplayMode(rawValue: rawValue) else { return }
+        widgetWindowController.setDisplayMode(mode)
         updateMenuState()
     }
 
