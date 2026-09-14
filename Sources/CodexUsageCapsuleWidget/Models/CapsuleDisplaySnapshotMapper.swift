@@ -35,7 +35,9 @@ enum CapsuleDisplaySnapshotMapper {
             creditPricing: creditPricing
         )
 
-        let items = CapsuleDisplayKind.allCases.compactMap { itemsByKind[$0] }
+        let items = itemsByKind.values.sorted {
+            $0.kind.orderingDurationMins < $1.kind.orderingDurationMins
+        }
         guard !items.isEmpty || credits != nil else { return nil }
         return CapsuleDisplaySnapshot(items: items, credits: credits)
     }

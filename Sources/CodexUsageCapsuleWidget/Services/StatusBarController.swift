@@ -176,10 +176,11 @@ final class StatusBarController: NSObject, NSMenuDelegate {
             statusItem.length = NSStatusItem.variableLength
             button.imagePosition = .noImage
             button.font = CompactStatusPillView.font
-            let fiveHour = snapshot?.items.first { $0.kind == .fiveHour }?.valueText ?? "--"
-            let weekly = snapshot?.items.first { $0.kind == .weekly }?.valueText ?? "--"
-            button.title = "5h \(fiveHour) · W \(weekly)"
+            button.title = compactUsageTitle(snapshot: snapshot)
             compactPillView.title = button.title
+            compactPillView.emphasizedLabels = snapshot?.items.map {
+                $0.kind.compactLabel
+            } ?? []
             // Keep the native title for intrinsic sizing and accessibility;
             // the non-interactive decoration renders its visible counterpart.
             button.attributedTitle = NSAttributedString(
@@ -197,6 +198,13 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         }
     }
 
+    private func compactUsageTitle(snapshot: CapsuleDisplaySnapshot?) -> String {
+        guard let items = snapshot?.items, !items.isEmpty else {
+            return "--"
+        }
+        return items.map(\.compactText).joined(separator: " · ")
+    }
+
     private func compactTooltip(lastUpdated: Date?) -> String {
         guard let lastUpdated else { return "Waiting for usage data…" }
         let formatter = DateFormatter()
@@ -210,7 +218,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
             return "Codex Usage        --"
         }
 
-        let summary = items.map { "\($0.kind.rawValue) \($0.valueText)" }
+        let summary = items.map { "\($0.kind.displayLabel) \($0.valueText)" }
             .joined(separator: " · ")
         return "Codex Usage        \(summary)"
     }

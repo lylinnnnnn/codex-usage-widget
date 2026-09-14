@@ -4,7 +4,7 @@ import Foundation
 ///
 /// Notifications never patch the displayed data directly. Each notification
 /// instead requests a fresh, complete `account/rateLimits/read`, so the mapper
-/// continues to identify 5h, Weekly, Monthly, and Credits only from complete
+/// continues to derive display windows and Credits only from complete
 /// duration-based data.
 actor CodexAppServerLiveRateLimitProvider:
     CapsuleDisplaySnapshotProviding,

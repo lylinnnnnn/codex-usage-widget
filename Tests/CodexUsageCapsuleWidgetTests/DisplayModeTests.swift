@@ -40,7 +40,7 @@ struct DisplayModeTests {
 
         // A mode can be selected before data arrives, without fabricated values.
         modes.performActionForItem(at: modes.index(of: compact))
-        #expect(button.title == "5h -- · W --")
+        #expect(button.title == "--")
         #expect(button.toolTip == "Waiting for usage data…")
         #expect(!window.isVisible)
         modes.performActionForItem(at: modes.index(of: capsules))
@@ -110,27 +110,170 @@ struct DisplayModeTests {
 
         // Account invalidation must clear the previous account's title and time.
         restored.viewModel.invalidateForAccountChange()
-        #expect(restoredItem.button?.title == "5h -- · W --")
+        #expect(restoredItem.button?.title == "--")
         #expect(restoredItem.button?.toolTip == "Waiting for usage data…")
         await restored.stop()
     }
 
-    @Test("Absent weekly data is not replaced with monthly usage")
-    func missingWeekly() async {
+    @Test("Compact renders the available usage windows without empty slots")
+    func compactUsageWindows() async throws {
         _ = NSApplication.shared
-        let suite = "CapsuleMissingWeeklyTests-\(UUID().uuidString)"
+        let suite = "CapsuleCompactUsageWindowsTests-\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!
         defer { defaults.removePersistentDomain(forName: suite) }
         DisplayModeStore(userDefaults: defaults).save(.notchCompact)
         let provider = DisplayProvider()
-        await provider.setMonthlySnapshot()
         let window = WidgetWindowController(snapshotProvider: provider, userDefaults: defaults)
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         let status = StatusBarController(viewModel: window.viewModel, widgetWindowController: window, statusItem: item)
         defer { status.invalidate() }
+        let button = try #require(item.button)
+        let menu = try #require(item.menu)
+
+        let cases: [(windows: [(duration: Int, usedPercent: Double)], title: String)] = [
+            (
+                [(duration: 300, usedPercent: 22), (duration: 10_080, usedPercent: 36)],
+                "5h 78% · W 64%"
+            ),
+            ([(duration: 300, usedPercent: 22)], "5h 78%"),
+            ([(duration: 10_080, usedPercent: 36)], "W 64%"),
+            ([(duration: 43_200, usedPercent: 18)], "M 82%"),
+            ([(duration: 1_440, usedPercent: 50)], "1d 50%"),
+            (
+                [(duration: 300, usedPercent: 22), (duration: 43_200, usedPercent: 18)],
+                "5h 78% · M 82%"
+            )
+        ]
+
+        for scenario in cases {
+            let snapshot = try #require(
+                CapsuleDisplaySnapshotMapper.map(
+                    CapsuleDisplayPayload(
+                        windows: scenario.windows.map {
+                            RateLimitWindowPayload(
+                                windowDurationMins: $0.duration,
+                                usedPercent: $0.usedPercent,
+                                resetsAt: nil
+                            )
+                        },
+                        credits: nil
+                    )
+                )
+            )
+            await provider.setSnapshot(items: snapshot.items)
+            await window.viewModel.refresh()
+
+            #expect(button.title == scenario.title)
+            #expect(button.title.contains("·") == (scenario.windows.count > 1))
+            #expect(item.length == NSStatusItem.variableLength)
+        }
+
+        let appServerMonthlyOnly = try CodexAppServerCapsuleDisplaySnapshotMapper.map(
+            AppServerRateLimitReadResult(
+                rateLimits: AppServerRateLimits(
+                    limitId: "codex",
+                    primary: AppServerRateLimitWindow(
+                        usedPercent: 18,
+                        windowDurationMins: 43_200,
+                        resetsAt: nil
+                    ),
+                    secondary: nil,
+                    credits: nil
+                ),
+                rateLimitsByLimitId: nil
+            )
+        )
+        await provider.setSnapshot(appServerMonthlyOnly)
         await window.viewModel.refresh()
-        #expect(item.button?.title == "5h 78% · W --")
+        #expect(button.title == "M 82%")
+
+        await provider.setSnapshot(items: [])
+        await window.viewModel.refresh()
+        #expect(button.title == "--")
+        #expect(!button.title.contains("·"))
+        #expect(item.length == NSStatusItem.variableLength)
+
+        let creditsOnly = try #require(
+            CapsuleDisplaySnapshotMapper.map(
+                CapsuleDisplayPayload(
+                    windows: [],
+                    credits: WorkspaceCreditBalancePayload(
+                        balance: nil,
+                        hasCredits: true,
+                        unlimited: true
+                    )
+                )
+            )
+        )
+        await provider.setSnapshot(creditsOnly)
+        await window.viewModel.refresh()
+        #expect(button.title == "--")
+        #expect(menu.item(withTitle: "Credits ∞")?.isHidden == false)
+
         await window.stop()
+    }
+
+    @Test("Account changes replace compact windows without retaining old values")
+    func accountChangesReplaceCompactWindows() async throws {
+        _ = NSApplication.shared
+        let suite = "CapsuleAccountSwitchTests-\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        DisplayModeStore(userDefaults: defaults).save(.notchCompact)
+
+        let accountA = DisplayProvider.snapshot(items: [
+            DisplayProvider.item(.fiveHour, "78%"),
+            DisplayProvider.item(.weekly, "64%")
+        ])
+        let accountB = DisplayProvider.snapshot(items: [
+            DisplayProvider.item(.monthly, "82%")
+        ])
+        let provider = AccountSwitchingDisplayProvider(snapshot: accountA)
+        let window = WidgetWindowController(snapshotProvider: provider, userDefaults: defaults)
+        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+        let status = StatusBarController(viewModel: window.viewModel, widgetWindowController: window, statusItem: item)
+        defer { status.invalidate() }
+        let button = try #require(item.button)
+
+        do {
+            window.start()
+            try await waitUntil {
+                button.title == "5h 78% · W 64%" && !window.viewModel.isRefreshing
+            }
+
+            await provider.setSnapshot(accountB)
+            await provider.holdNextFetch()
+            await provider.emitAccountChange()
+            try await waitUntilFetchIsHeld(provider)
+            try await waitUntil {
+                button.title == "--"
+                    && button.toolTip == "Waiting for usage data…"
+                    && window.viewModel.isRefreshing
+            }
+            await provider.resumeFetch()
+            try await waitUntil {
+                button.title == "M 82%" && !window.viewModel.isRefreshing
+            }
+
+            await provider.setSnapshot(accountA)
+            await provider.holdNextFetch()
+            await provider.emitAccountChange()
+            try await waitUntilFetchIsHeld(provider)
+            try await waitUntil {
+                button.title == "--"
+                    && button.toolTip == "Waiting for usage data…"
+                    && window.viewModel.isRefreshing
+            }
+            await provider.resumeFetch()
+            try await waitUntil {
+                button.title == "5h 78% · W 64%" && !window.viewModel.isRefreshing
+            }
+
+            await window.stop()
+        } catch {
+            await window.stop()
+            throw error
+        }
     }
 
     private func expectedTooltip(_ timestamp: Date) -> String {
@@ -146,6 +289,17 @@ struct DisplayModeTests {
             try await Task.sleep(for: .milliseconds(10))
         }
         #expect(condition(), "Timed out waiting for the existing refresh pipeline")
+    }
+
+    private func waitUntilFetchIsHeld(
+        _ provider: AccountSwitchingDisplayProvider
+    ) async throws {
+        for _ in 0..<200 {
+            if await provider.isFetchHeld() { return }
+            try await Task.sleep(for: .milliseconds(10))
+        }
+        let isHeld = await provider.isFetchHeld()
+        #expect(isHeld, "Timed out waiting for the account refresh read to start")
     }
 }
 
@@ -167,13 +321,15 @@ private actor DisplayProvider: CapsuleDisplaySnapshotProviding {
         snapshot = Self.makeSnapshot(fiveHour: fiveHour, weekly: weekly)
     }
 
-    func failNextRefresh() { shouldFail = true }
-
-    func setMonthlySnapshot() {
-        snapshot = CapsuleDisplaySnapshot(items: [
-            Self.item(.fiveHour, "78%"), Self.item(.monthly, "90%")
-        ])
+    func setSnapshot(items: [CapsuleDisplayItem]) {
+        snapshot = Self.snapshot(items: items)
     }
+
+    func setSnapshot(_ snapshot: CapsuleDisplaySnapshot) {
+        self.snapshot = snapshot
+    }
+
+    func failNextRefresh() { shouldFail = true }
 
     private static func makeSnapshot(fiveHour: String, weekly: String) -> CapsuleDisplaySnapshot {
         CapsuleDisplaySnapshot(
@@ -182,7 +338,70 @@ private actor DisplayProvider: CapsuleDisplaySnapshotProviding {
         )
     }
 
-    private static func item(_ kind: CapsuleDisplayKind, _ text: String) -> CapsuleDisplayItem {
+    nonisolated static func snapshot(items: [CapsuleDisplayItem]) -> CapsuleDisplaySnapshot {
+        CapsuleDisplaySnapshot(items: items)
+    }
+
+    nonisolated static func item(_ kind: CapsuleDisplayKind, _ text: String) -> CapsuleDisplayItem {
         CapsuleDisplayItem(kind: kind, fillPercent: 50, valueText: text, accessibilityValue: text)
+    }
+}
+
+private actor AccountSwitchingDisplayProvider:
+    CapsuleDisplaySnapshotProviding,
+    RateLimitEventProviding {
+    private var snapshot: CapsuleDisplaySnapshot
+    private var eventContinuation: AsyncStream<RateLimitUpdateEvent>.Continuation?
+    private var shouldHoldNextFetch = false
+    private var fetchContinuation: CheckedContinuation<Void, Never>?
+
+    init(snapshot: CapsuleDisplaySnapshot) {
+        self.snapshot = snapshot
+    }
+
+    func fetchDisplaySnapshot() async throws -> CapsuleDisplaySnapshot {
+        if shouldHoldNextFetch {
+            shouldHoldNextFetch = false
+            await withCheckedContinuation { continuation in
+                fetchContinuation = continuation
+            }
+        }
+        return snapshot
+    }
+
+    func makeEventStream() async -> AsyncStream<RateLimitUpdateEvent> {
+        let (stream, continuation) = AsyncStream<RateLimitUpdateEvent>.makeStream(
+            bufferingPolicy: .bufferingNewest(1)
+        )
+        eventContinuation = continuation
+        return stream
+    }
+
+    func stopEventMonitoring() async {
+        eventContinuation?.finish()
+        eventContinuation = nil
+        fetchContinuation?.resume()
+        fetchContinuation = nil
+    }
+
+    func setSnapshot(_ snapshot: CapsuleDisplaySnapshot) {
+        self.snapshot = snapshot
+    }
+
+    func holdNextFetch() {
+        shouldHoldNextFetch = true
+    }
+
+    func isFetchHeld() -> Bool {
+        fetchContinuation != nil
+    }
+
+    func resumeFetch() {
+        fetchContinuation?.resume()
+        fetchContinuation = nil
+    }
+
+    func emitAccountChange() {
+        eventContinuation?.yield(.refreshRequired(.accountChanged))
     }
 }

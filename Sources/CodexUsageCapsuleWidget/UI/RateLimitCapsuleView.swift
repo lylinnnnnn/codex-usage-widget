@@ -63,7 +63,7 @@ struct RateLimitCapsuleView: View {
 
             Spacer(minLength: Metrics.capsuleToLabelMinimum)
 
-            Text(kind.rawValue)
+            Text(kind.displayLabel)
                 .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(Color.white.opacity(0.82))
                 .frame(height: Metrics.labelHeight)
@@ -73,7 +73,7 @@ struct RateLimitCapsuleView: View {
             height: Metrics.columnHeight
         )
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(kind.rawValue)
+        .accessibilityLabel(kind.displayLabel)
         .accessibilityValue(accessibilityValue)
         .accessibilityHint("Remaining Codex usage")
     }

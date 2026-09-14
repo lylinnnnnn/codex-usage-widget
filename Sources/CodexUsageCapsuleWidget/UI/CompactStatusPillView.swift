@@ -11,6 +11,10 @@ final class CompactStatusPillView: NSView {
         didSet { needsDisplay = true }
     }
 
+    var emphasizedLabels: [String] = [] {
+        didSet { needsDisplay = true }
+    }
+
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
         autoresizingMask = [.width, .height]
@@ -37,7 +41,7 @@ final class CompactStatusPillView: NSView {
         let size = text.size()
         let source = title as NSString
         let labelFont = NSFont.monospacedDigitSystemFont(ofSize: 11.5, weight: .medium)
-        for label in ["5h", "W"] {
+        for label in emphasizedLabels where !label.isEmpty {
             let range = source.range(of: label)
             if range.location != NSNotFound {
                 text.addAttribute(.font, value: labelFont, range: range)
