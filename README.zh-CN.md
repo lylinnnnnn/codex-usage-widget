@@ -19,6 +19,63 @@
 
 ---
 
+## 全新 · NOTCH COMPACT
+
+# Codex 用量，就在你的 MacBook 刘海旁边。
+
+一个轻量的原生 macOS Micro Pill，让你不用一直开着桌面组件，也能随时看到当前 Codex 用量。
+
+Notch Compact 会根据本地 Codex 服务实际返回的数据动态显示 `5h`、`W`、`M`，以及当前逻辑支持的组合。如果当前账户只有 Monthly，它会保持简洁，显示为 `M 0%`。使用详情与 Credits（可用时）仍可从菜单栏一键查看。
+
+<p align="center">
+<img src="Assets/notch-compact-hero-zh.jpg" alt="Notch Compact 产品概览，使用真实的 5 小时和 Weekly 菜单栏截图" width="100%">
+</p>
+
+<table>
+<tr>
+<td width="50%" align="center" valign="top">
+
+### Monthly-only 菜单栏
+
+<img src="Assets/notch-compact-monthly-context.jpg" alt="完整 macOS 菜单栏环境中的 Monthly-only Notch Compact" width="100%">
+
+Micro Pill 自然融入 macOS 菜单栏。
+
+</td>
+<td width="50%" align="center" valign="top">
+
+### Monthly-only 近景
+
+<img src="Assets/notch-compact-monthly-bar.jpg" alt="显示 M 0% 的 Monthly-only Notch Compact 近景" width="100%">
+
+只有 Monthly 数据时，依然以 `M 0%` 清晰、紧凑地显示。
+
+</td>
+</tr>
+<tr>
+<td width="50%" align="center" valign="top">
+
+### 切换显示模式
+
+<img src="Assets/notch-compact-display-mode.jpg" alt="包含 Capsules 和 Notch Compact 的 Display Mode 子菜单" width="100%">
+
+直接从菜单栏在 Capsules 与 Notch Compact 之间切换。
+
+</td>
+<td width="50%" align="center" valign="top">
+
+### 使用详情与 Credits
+
+<img src="Assets/notch-compact-menu-details.jpg" alt="包含 Monthly、更新时间、Credits 和 Refresh Now 的 Codex Usage 菜单" width="100%">
+
+一键查看当前使用详情、Credits（可用时），或执行 Refresh Now。
+
+</td>
+</tr>
+</table>
+
+---
+
 ## APP 01
 
 # Simple App
@@ -94,9 +151,7 @@
 
 ### Notch Compact
 
-v0.2.0 新增的轻量标准 macOS 菜单栏模式。紧凑的 Micro Pill 会显示 `5h 25% · W 88%`；悬停可看到最近更新时间，点击可访问现有的使用详情和刷新操作。
-
-<img src="Assets/notch-compact-mode.jpg" alt="Notch Compact 菜单栏截图" width="100%">
+v0.2.0 新增的轻量标准 macOS 菜单栏模式。紧凑的 Micro Pill 会根据当前账户实际返回的数据动态显示 `5h`、`W`、`M`，以及当前逻辑支持的组合。只有 Monthly 数据时，会简洁显示为 `M 0%`。悬停可查看最近更新时间；点击即可查看使用详情、Credits（可用时）和 Refresh Now。
 
 </td>
 </tr>

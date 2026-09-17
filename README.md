@@ -19,6 +19,63 @@ One stays intentionally minimal. The other shows the usage windows and Credits d
 
 ---
 
+## NEW · NOTCH COMPACT
+
+# Codex usage, right by your MacBook notch.
+
+A tiny native macOS Micro Pill that keeps your current Codex usage visible without keeping a desktop widget open.
+
+Notch Compact dynamically renders the usage windows returned by your local Codex service. It may show `5h`, `W`, `M`, or supported combinations. When an account only returns Monthly usage, it stays clean and compact as `M 0%`. Usage details and Credits, when available, remain one click away in the menu bar.
+
+<p align="center">
+<img src="Assets/notch-compact-hero-en.jpg" alt="Notch Compact overview with a real 5-hour and Weekly menu bar screenshot" width="100%">
+</p>
+
+<table>
+<tr>
+<td width="50%" align="center" valign="top">
+
+### Monthly-only menu bar
+
+<img src="Assets/notch-compact-monthly-context.jpg" alt="Monthly-only Notch Compact in the complete macOS menu bar context" width="100%">
+
+The Micro Pill stays at home in the macOS menu bar.
+
+</td>
+<td width="50%" align="center" valign="top">
+
+### Monthly-only close-up
+
+<img src="Assets/notch-compact-monthly-bar.jpg" alt="Monthly-only Notch Compact close-up showing M 0 percent" width="100%">
+
+Monthly-only data remains clear and compact as `M 0%`.
+
+</td>
+</tr>
+<tr>
+<td width="50%" align="center" valign="top">
+
+### Switch display mode
+
+<img src="Assets/notch-compact-display-mode.jpg" alt="Display Mode submenu with Capsules and Notch Compact" width="100%">
+
+Switch between Capsules and Notch Compact from the menu bar.
+
+</td>
+<td width="50%" align="center" valign="top">
+
+### Usage details & Credits
+
+<img src="Assets/notch-compact-menu-details.jpg" alt="Codex Usage menu with Monthly usage, update time, Credits, and Refresh Now" width="100%">
+
+Open current usage details, Credits when available, and Refresh Now with one click.
+
+</td>
+</tr>
+</table>
+
+---
+
 ## APP 01
 
 # Simple App
@@ -94,9 +151,7 @@ The original adaptive floating-capsule display adapts to the available data, inc
 
 ### Notch Compact
 
-New in v0.2.0, a lightweight standard macOS menu-bar mode. Its compact Micro Pill shows `5h 25% · W 88%`, reveals the last update time on hover, and lets you access the existing usage details and Refresh action when clicked.
-
-<img src="Assets/notch-compact-mode.jpg" alt="Notch Compact menu bar screenshot" width="100%">
+New in v0.2.0, a lightweight standard macOS menu-bar mode. Its compact Micro Pill dynamically renders the usage windows returned by the current account: `5h`, `W`, `M`, or supported combinations. A Monthly-only account stays compact as `M 0%`. The last update time appears on hover, while usage details, Credits when available, and Refresh Now remain accessible with one click.
 
 </td>
 </tr>
