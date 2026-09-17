@@ -25,7 +25,7 @@
 
 一个轻量的原生 macOS Micro Pill，让你不用一直开着桌面组件，也能随时看到当前 Codex 用量。
 
-Notch Compact 会根据本地 Codex 服务实际返回的数据动态显示 `5h`、`W`、`M`，以及当前逻辑支持的组合。如果当前账户只有 Monthly，它会保持简洁，显示为 `M 0%`。使用详情与 Credits（可用时）仍可从菜单栏一键查看。
+Notch Compact 会根据本地 Codex 服务实际返回的使用周期自动显示 `5h`、`W`、`M`，以及当前逻辑支持的组合。如果当前账户只有 Monthly，它会直接显示 `M` 和当前百分比。使用详情与 Credits（可用时）仍可从菜单栏一键查看。
 
 <p align="center">
 <img src="Assets/notch-compact-hero-zh.jpg" alt="Notch Compact 产品概览，使用真实的 5 小时和 Weekly 菜单栏截图" width="100%">
@@ -39,7 +39,7 @@ Notch Compact 会根据本地 Codex 服务实际返回的数据动态显示 `5h`
 
 <img src="Assets/notch-compact-monthly-context.jpg" alt="完整 macOS 菜单栏环境中的 Monthly-only Notch Compact" width="100%">
 
-Micro Pill 自然融入 macOS 菜单栏。
+自然融入 macOS 菜单栏。
 
 </td>
 <td width="50%" align="center" valign="top">
@@ -48,7 +48,7 @@ Micro Pill 自然融入 macOS 菜单栏。
 
 <img src="Assets/notch-compact-monthly-bar.jpg" alt="显示 M 0% 的 Monthly-only Notch Compact 近景" width="100%">
 
-只有 Monthly 数据时，依然以 `M 0%` 清晰、紧凑地显示。
+只有 Monthly 数据时，也会直接显示 `M` 和当前百分比，保持清晰、紧凑。
 
 </td>
 </tr>
@@ -151,7 +151,7 @@ Micro Pill 自然融入 macOS 菜单栏。
 
 ### Notch Compact
 
-v0.2.0 新增的轻量标准 macOS 菜单栏模式。紧凑的 Micro Pill 会根据当前账户实际返回的数据动态显示 `5h`、`W`、`M`，以及当前逻辑支持的组合。只有 Monthly 数据时，会简洁显示为 `M 0%`。悬停可查看最近更新时间；点击即可查看使用详情、Credits（可用时）和 Refresh Now。
+v0.2.0 新增的轻量原生 macOS 菜单栏模式。Micro Pill 会根据当前账户实际返回的使用周期自动显示；悬停和点击可快速查看最近更新时间、使用详情、Credits（可用时）以及 Refresh Now。
 
 </td>
 </tr>

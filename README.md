@@ -25,7 +25,7 @@ One stays intentionally minimal. The other shows the usage windows and Credits d
 
 A tiny native macOS Micro Pill that keeps your current Codex usage visible without keeping a desktop widget open.
 
-Notch Compact dynamically renders the usage windows returned by your local Codex service. It may show `5h`, `W`, `M`, or supported combinations. When an account only returns Monthly usage, it stays clean and compact as `M 0%`. Usage details and Credits, when available, remain one click away in the menu bar.
+Notch Compact adapts to the usage windows returned by your local Codex service — `5h`, `W`, `M`, or supported combinations. Monthly-only accounts are handled automatically, with the current percentage shown directly in the menu bar. Usage details and Credits, when available, remain one click away.
 
 <p align="center">
 <img src="Assets/notch-compact-hero-en.jpg" alt="Notch Compact overview with a real 5-hour and Weekly menu bar screenshot" width="100%">
@@ -39,7 +39,7 @@ Notch Compact dynamically renders the usage windows returned by your local Codex
 
 <img src="Assets/notch-compact-monthly-context.jpg" alt="Monthly-only Notch Compact in the complete macOS menu bar context" width="100%">
 
-The Micro Pill stays at home in the macOS menu bar.
+Fits naturally into the macOS menu bar.
 
 </td>
 <td width="50%" align="center" valign="top">
@@ -48,7 +48,7 @@ The Micro Pill stays at home in the macOS menu bar.
 
 <img src="Assets/notch-compact-monthly-bar.jpg" alt="Monthly-only Notch Compact close-up showing M 0 percent" width="100%">
 
-Monthly-only data remains clear and compact as `M 0%`.
+Monthly-only data stays clear and compact, with the current percentage shown directly in the pill.
 
 </td>
 </tr>
@@ -123,7 +123,7 @@ In Capsules mode, the detailed app changes its layout based on the usage data th
 
 - 5-hour and weekly usage when available
 - Monthly usage when returned by the account
-- Credits appears only when available
+- The Credits balance appears only when available
 - Menu bar controls for display-mode switching, usage details, Refresh Now, show/hide in Capsules mode, and quit
 
 </td>
@@ -144,14 +144,14 @@ In Capsules mode, the detailed app changes its layout based on the usage data th
 
 ### Capsules
 
-The original adaptive floating-capsule display adapts to the available data, including 5-hour and weekly usage, with monthly usage and Credits when available.
+The original floating-capsule display adapts to the available data, including 5-hour and weekly usage, with monthly usage and Credits when available.
 
 </td>
 <td width="50%" valign="top">
 
 ### Notch Compact
 
-New in v0.2.0, a lightweight standard macOS menu-bar mode. Its compact Micro Pill dynamically renders the usage windows returned by the current account: `5h`, `W`, `M`, or supported combinations. A Monthly-only account stays compact as `M 0%`. The last update time appears on hover, while usage details, Credits when available, and Refresh Now remain accessible with one click.
+New in v0.2.0, Notch Compact is a lightweight native macOS menu-bar mode. Its Micro Pill adapts to the usage windows returned by the current account, while hover and click keep the last update time, usage details, Credits when available, and Refresh Now close at hand.
 
 </td>
 </tr>
@@ -187,7 +187,7 @@ Credits appears only when a balance is available.
 </td>
 <td width="33%" align="center">
 
-### Monthly+ Credits
+### Monthly + Credits
 
 <img src="Assets/codex-state-monthly.jpg" alt="Monthly state" width="100%">
 
