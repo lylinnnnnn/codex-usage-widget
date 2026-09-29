@@ -239,9 +239,9 @@ Prebuilt ZIPs are available from [GitHub Releases](https://github.com/lylinnnnnn
 - **CodexUsageWidget** — the minimal single-bar widget
 - **CodexUsageCapsuleWidget** — the adaptive detailed widget with Capsules and Notch Compact display modes
 
-The current v0.2.0 packages are Apple Silicon (arm64) builds for macOS 13 Ventura or later. Download the corresponding ZIP, unzip it to get the matching `.app`, then move it to `/Applications` if you like.
+The current v0.2.2 packages are Apple Silicon (arm64) builds for macOS 13 Ventura or later. Download the corresponding ZIP, unzip it to get the matching `.app`, then move it to `/Applications` if you like.
 
-v0.2.0 uses ad-hoc signing and is not yet Apple notarized, so macOS may ask for confirmation the first time you open it. In Finder, right-click the app and choose **Open**, or allow it in **System Settings → Privacy & Security**.
+v0.2.2 uses ad-hoc signing and is not yet Apple notarized, so macOS may ask for confirmation the first time you open it. In Finder, right-click the app and choose **Open**, or allow it in **System Settings → Privacy & Security**.
 
 <table>
 <tr>

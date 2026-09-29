@@ -239,9 +239,9 @@ v0.2.0 新增的轻量原生 macOS 菜单栏模式。Micro Pill 会根据当前�
 - **CodexUsageWidget** — 极简的单进度条组件
 - **CodexUsageCapsuleWidget** — 可在胶囊模式和 Notch Compact 之间切换的自适应详细组件
 
-当前 v0.2.0 安装包适用于运行 macOS 13 Ventura 或更高版本的 Apple Silicon（arm64）Mac。下载对应 ZIP，解压后即可得到相应的 `.app`，也可以将它移动到 `/Applications`。
+当前 v0.2.2 安装包适用于运行 macOS 13 Ventura 或更高版本的 Apple Silicon（arm64）Mac。下载对应 ZIP，解压后即可得到相应的 `.app`，也可以将它移动到 `/Applications`。
 
-v0.2.0 使用 ad-hoc 签名，目前还没有经过 Apple 公证，因此首次打开时 macOS 可能会要求你确认。可以在 Finder 中右键 App 并选择 **打开**，或者前往 **系统设置 → 隐私与安全性** 允许打开。
+v0.2.2 使用 ad-hoc 签名，目前还没有经过 Apple 公证，因此首次打开时 macOS 可能会要求你确认。可以在 Finder 中右键 App 并选择 **打开**，或者前往 **系统设置 → 隐私与安全性** 允许打开。
 
 <table>
 <tr>
