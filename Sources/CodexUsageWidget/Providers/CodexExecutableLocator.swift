@@ -13,6 +13,9 @@ enum CodexExecutableLocator {
         let homeDirectory = fileManager.homeDirectoryForCurrentUser
         var candidates = [
             URL(fileURLWithPath: "/Applications/ChatGPT.app/Contents/Resources/codex"),
+            URL(
+                fileURLWithPath: "/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex"
+            ),
             URL(fileURLWithPath: "/opt/homebrew/bin/codex"),
             URL(fileURLWithPath: "/usr/local/bin/codex"),
             homeDirectory.appendingPathComponent(".local/bin/codex"),
